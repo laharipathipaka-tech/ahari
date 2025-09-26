@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TrendMart — Modern E-Commerce Demo</title>
+  <meta name="description" content="A responsive e-commerce front-end demo with shopping cart." />
+  <style>
+    /* ---------- Reset ---------- */
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      color:#111827;
+      background: #f5f7fb;
+      line-height:1.4;
+    }
+
+    /* ---------- Header / Nav ---------- */
+    header{
+      position:sticky;
+      top:0;
+      z-index:40;
+      backdrop-filter: blur(6px);
+      background: rgba(255,255,255,0.75);
+      border-bottom: 1px solid rgba(15,23,42,0.05);
+    }
+    .container{max-width:1100px;margin:0 auto;padding:16px;}
+    .nav{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      justify-content:space-between;
+    }
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-weight:700;
+      font-size:18px;
+      color:#0f172a;
+      text-decoration:none;
+    }
+    .logo .dot{width:10px;height:10px;background:#2563eb;border-radius:3px;display:inline-block}
+
+    nav ul{display:flex;gap:12px;list-style:none;padding:0;margin:0}
+    nav a{
+      text-decoration:none;color:#374151;padding:8px 10px;border-radius:6px;font-weight:600;font-size:14px;
+    }
+    nav a:hover{background:#eef2ff;color:#1e3a8a}
+
+    /* cart icon */
+    .actions{display:flex;gap:12px;align-items:center}
+    .cart-btn{
+      position:relative;
+      background:transparent;border:1px solid rgba(15,23,42,0.06);padding:8px 12px;border-radius:8px;cursor:pointer;
+      display:inline-flex;align-items:center;gap:8px;font-weight:600;
+    }
+    .cart-badge{
+      position:absolute;top:-6px;right:-6px;background:#ef4444;color:white;border-radius:999px;padding:3px 7px;font-size:12px;font-weight:700;
+      box-shadow:0 2px 6px rgba(0,0,0,0.12);
+    }
+
+    /* ---------- Hero ---------- */
+    .hero{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:18px;
+      align-items:center;
+      padding:36px 0 16px;
+    }
+    .hero-card{
+      background:linear-gradient(180deg,#ffffff,#f8fafc);
+      border-radius:12px;padding:22px;display:flex;gap:22px;align-items:center;
+      box-shadow:0 6px 20px rgba(16,24,40,0.05);
+    }
+    .hero-card img{width:160px;height:120px;object-fit:cover;border-radius:8px}
+    .hero-card h1{margin:0;font-size:22px;color:#0f172a}
+    .hero-card p{margin:6px 0 0;color:#475569}
+
+    /* ---------- Products ---------- */
+    .section-title{display:flex;justify-content:space-between;align-items:center;margin:18px 0}
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:16px;
+    }
+    .card{
+      background:#fff;padding:12px;border-radius:12px;border:1px solid rgba(15,23,42,0.03);
+      box-shadow:0 6px 18px rgba(16,24,40,0.04);display:flex;flex-direction:column;
+    }
+    .card img{width:100%;height:160px;object-fit:cover;border-radius:8px}
+    .card h3{margin:10px 0 6px;font-size:16px;color:#0f172a}
+    .price{font-weight:700;color:#111827;margin-bottom:8px}
+    .card .card-actions{margin-top:auto;display:flex;gap:8px;align-items:center}
+    .btn{
+      background:#2563eb;color:white;padding:8px 10px;border-radius:8px;border:none;cursor:pointer;font-weight:700;
+    }
+    .btn.secondary{background:#f3f4f6;color:#111827;border:1px solid rgba(15,23,42,0.04)}
+    .small{font-size:13px;padding:7px 9px}
+
+    /* ---------- Cart Slide-over ---------- */
+    .cart-panel{
+      position:fixed;right:0;top:0;height:100vh;width:360px;max-width:95vw;
+      transform:translateX(110%);transition:transform .28s cubic-bezier(.2,.9,.25,1);
+      background:#ffffff;padding:18px;border-left:1px solid rgba(15,23,42,0.05);box-shadow:-8px 0 30px rgba(2,6,23,0.08);z-index:60;
+      display:flex;flex-direction:column;
+    }
+    .cart-panel.open{transform:translateX(0)}
+    .cart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .cart-list{flex:1;overflow:auto;padding-right:6px}
+    .cart-item{
+      display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(15,23,42,0.04)
+    }
+    .cart-item img{width:64px;height:64px;object-fit:cover;border-radius:8px}
+    .cart-item .meta{flex:1}
+    .cart-item .meta h4{margin:0;font-size:14px}
+    .cart-item .meta p{margin:6px 0 0;font-size:13px;color:#6b7280}
+    .qty-controls{display:inline-flex;align-items:center;gap:8px;margin-top:8px}
+    .qty-controls button{background:#efefef;border:none;padding:6px 8px;border-radius:6px;cursor:pointer}
+    .remove-btn{background:transparent;border:none;color:#ef4444;font-weight:700;cursor:pointer}
+
+    .cart-footer{border-top:1px solid rgba(15,23,42,0.05);padding-top:12px;margin-top:12px}
+    .total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-weight:800;font-size:16px}
+    .checkout-btn{width:100%;padding:10px;border-radius:10px;border:none;background:#10b981;color:white;font-weight:800;cursor:pointer}
+
+    /* ---------- Footer ---------- */
+    footer{margin-top:40px;padding:28px 0;color:#6b7280;background:transparent}
+
+    /* ---------- Responsive ---------- */
+    @media (max-width:980px){
+      .grid{grid-template-columns:repeat(3,1fr)}
+      .hero-card{flex-direction:column;align-items:flex-start}
+      .hero-card img{width:100%;height:180px}
+    }
+    @media (max-width:700px){
+      nav ul{display:none}
+      .grid{grid-template-columns:repeat(2,1fr)}
+      .hero{padding:22px 0}
+    }
+    @media (max-width:420px){
+      .grid{grid-template-columns:1fr}
+    }
+
+    /* small helper */
+    .muted{color:#6b7280;font-size:13px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav" role="navigation" aria-label="Main navigation">
+      <div class="brand">
+        <a href="#home" class="logo"><span class="dot" aria-hidden="true"></span> TrendMart</a>
+        <nav aria-label="Primary">
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#shop">Shop</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#help">Help</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <div class="actions" role="region" aria-label="Header actions">
+        <button class="cart-btn" id="open-cart" aria-haspopup="dialog" aria-expanded="false">
+          🛒 Cart
+          <span class="cart-badge" id="cart-count" aria-live="polite">0</span>
+        </button>
+        <a class="btn small" href="#shop" title="Start Shopping">Shop Now</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" id="home">
+    <section class="hero" style="margin-top:18px">
+      <div class="hero-card" aria-labelledby="hero-title">
+        <img src="https://images.unsplash.com/photo-1606813902813-6b6f0bd8f55a?q=80&w=1200&auto=format&fit=crop&ixlib=rb-4.0.3&s=1b53e6b6f3b6b1bed3c8f3efb2c1e3b7" alt="Stylish clothes on a rack" />
+        <div>
+          <h1 id="hero-title">New arrivals. Everyday style, made simple.</h1>
+          <p class="muted">Curated picks across fashion, accessories, and home — shipped fast.</p>
+          <div style="margin-top:12px;display:flex;gap:8px">
+            <a class="btn" href="#shop">Browse Collection</a>
+            <a class="btn secondary" href="#about">Learn More</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="shop" style="margin-top:18px">
+      <div class="section-title">
+        <h2 style="margin:0">Featured Products</h2>
+        <div class="muted">Secure checkout • 30-day returns</div>
+      </div>
+
+      <div class="grid" id="product-grid" aria-live="polite">
+        <!-- Products injected by JS -->
+      </div>
+    </section>
+
+    <section id="about" style="margin-top:28px">
+      <div style="display:flex;gap:18px;align-items:flex-start">
+        <div style="flex:1">
+          <h2>About TrendMart</h2>
+          <p class="muted">TrendMart is a demo storefront built to showcase a simple, responsive shopping experience with a lightweight JS cart. This is a front-end-only example — no payment processing is included.</p>
+        </div>
+        <div style="width:260px">
+          <h3 style="margin-bottom:6px">Contact</h3>
+          <p class="muted" style="margin:0">Email: hello@trendmart.example</p>
+          <p class="muted" style="margin:6px 0 0">Phone: +91 98765 43210</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" style="margin-top:28px">
+      <h2>Contact Us</h2>
+      <p class="muted" style="max-width:720px">Have a question about orders, shipping, or returns? Fill out the simple contact form and we’ll reply within 1–2 business days (demo only).</p>
+      <form id="contact-form" style="margin-top:12px;display:grid;gap:10px;max-width:680px">
+        <input placeholder="Your name" required style="padding:10px;border-radius:8px;border:1px solid #e6eaf2"/>
+        <input placeholder="Your email" type="email" required style="padding:10px;border-radius:8px;border:1px solid #e6eaf2"/>
+        <textarea placeholder="Message" rows="4" style="padding:10px;border-radius:8px;border:1px solid #e6eaf2"></textarea>
+        <div style="display:flex;gap:8px">
+          <button class="btn" type="submit">Send</button>
+          <button class="btn secondary" type="reset">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="help" style="margin-top:28px">
+      <h2>Help & FAQs</h2>
+      <div class="muted" style="max-width:760px">
+        <p><strong>Returns:</strong> 30-day return policy from receipt of goods.</p>
+        <p><strong>Shipping:</strong> Estimated 3–7 business days within India. International shipping varies.</p>
+        <p><strong>Payments:</strong> This demo does not include payment integration — it’s a front-end prototype.</p>
+      </div>
+    </section>
+
+    <footer style="margin-top:34px" aria-label="Footer">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+        <div class="muted">© <strong>TrendMart</strong> — Demo storefront</div>
+        <div class="muted">Built for learning • No real sales</div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- Cart Slide-over -->
+  <aside class="cart-panel" id="cart-panel" role="dialog" aria-label="Shopping cart" aria-modal="true">
+    <div class="cart-head">
+      <div>
+        <strong>Your Cart</strong>
+        <div class="muted" id="cart-items-count">0 items</div>
+      </div>
+      <div>
+        <button id="close-cart" class="btn small">Close</button>
+      </div>
+    </div>
+
+    <div class="cart-list" id="cart-list">
+      <!-- cart items injected here -->
+    </div>
+
+    <div class="cart-footer">
+      <div class="total-row">
+        <div>Total</div>
+        <div id="cart-total">₹0.00</div>
+      </div>
+      <button class="checkout-btn" id="checkout-btn">Proceed to Checkout</button>
+      <div style="margin-top:10px;text-align:center" class="muted">website — no payment required</div>
+    </div>
+  </aside>
+
+  <script>
+    /**********************
+     * Product & Cart Data *
+     **********************/
+    const PRODUCTS = [
+      { id: 'p1', title: 'Classic White Tee', price: 599, img:'classic.jpg' },
+      { id: 'p2', title: 'Sleek Denim Jacket', price: 2499, img: 'jacket.jpg' },
+      { id: 'p3', title: 'Comfort Sneakers', price: 3499, img: 'sneakers.jpg' },
+      { id: 'p4', title: 'Minimalist Watch', price: 5499, img: 'minimal watch.jpg' },
+      { id: 'p5', title: 'Cozy Hoodie', price: 1799, img: 'cozy.jpg' },
+      { id: 'p6', title: 'Canvas Tote Bag', price: 799, img: 'canvas.jpg' },
+      { id: 'p7', title: 'Sunglasses', price: 1299, img: 'sunglasses.jpg' },
+      { id: 'p8', title: 'Travel Backpack', price: 2999, img: 'travel backpack.jpg' }
+    ];
+
+    // retrieve cart from localStorage or start empty
+    let cart = JSON.parse(localStorage.getItem('trendmart_cart') || '[]');
+
+    /**********************
+     * Utility functions   *
+     **********************/
+    const formatINR = (n) => {
+      return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(n);
+    };
+
+    /**********************
+     * Render products     *
+     **********************/
+    const grid = document.getElementById('product-grid');
+    function renderProducts(){
+      grid.innerHTML = '';
+      PRODUCTS.forEach(p => {
+        const el = document.createElement('article');
+        el.className = 'card';
+        el.innerHTML = `
+          <img src="${p.img}" alt="${escapeHtml(p.title)}" loading="lazy" />
+          <h3>${escapeHtml(p.title)}</h3>
+          <div class="price">${formatINR(p.price)}</div>
+          <div class="card-actions">
+            <button class="btn small" data-id="${p.id}">Add to Cart</button>
+            <button class="btn secondary small" onclick="viewQuick('${p.id}')">Quick View</button>
+          </div>
+        `;
+        grid.appendChild(el);
+      });
+
+      // attach event listeners for add-to-cart buttons
+      document.querySelectorAll('.card .btn[data-id]').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          const id = e.currentTarget.dataset.id;
+          addToCart(id);
+        });
+      });
+    }
+
+    function escapeHtml(str){
+      return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+    }
+
+    /**********************
+     * Cart UI & actions  *
+     **********************/
+    const openCartBtn = document.getElementById('open-cart');
+    const cartPanel = document.getElementById('cart-panel');
+    const closeCartBtn = document.getElementById('close-cart');
+    const cartCountEl = document.getElementById('cart-count');
+    const cartListEl = document.getElementById('cart-list');
+    const cartTotalEl = document.getElementById('cart-total');
+    const cartItemsCountEl = document.getElementById('cart-items-count');
+
+    openCartBtn.addEventListener('click', ()=>{ toggleCart(true) });
+    closeCartBtn.addEventListener('click', ()=>{ toggleCart(false) });
+
+    function toggleCart(open){
+      if(open){
+        cartPanel.classList.add('open');
+        openCartBtn.setAttribute('aria-expanded','true');
+      } else {
+        cartPanel.classList.remove('open');
+        openCartBtn.setAttribute('aria-expanded','false');
+      }
+    }
+
+    function saveCart(){
+      localStorage.setItem('trendmart_cart', JSON.stringify(cart));
+    }
+
+    function addToCart(productId, qty = 1){
+      const product = PRODUCTS.find(p => p.id === productId);
+      if(!product) return;
+      const existing = cart.find(it => it.id === productId);
+      if(existing){
+        existing.quantity += qty;
+      } else {
+        cart.push({ id: productId, quantity: qty });
+      }
+      saveCart();
+      renderCart();
+      // brief highlight / feedback
+      flashCartButton();
+    }
+
+    function flashCartButton(){
+      openCartBtn.animate([
+        { transform: 'scale(1)' },
+        { transform: 'scale(1.08)' },
+        { transform: 'scale(1)' }
+      ], { duration: 300, easing: 'ease-out' });
+    }
+
+    function changeQuantity(productId, delta){
+      const item = cart.find(i => i.id === productId);
+      if(!item) return;
+      item.quantity += delta;
+      if(item.quantity < 1){
+        // remove
+        cart = cart.filter(i => i.id !== productId);
+      }
+      saveCart();
+      renderCart();
+    }
+
+    function removeFromCart(productId){
+      cart = cart.filter(i => i.id !== productId);
+      saveCart();
+      renderCart();
+    }
+
+    function cartSummary(){
+      let totalItems = 0, totalPrice = 0;
+      cart.forEach(ci => {
+        const p = PRODUCTS.find(x => x.id === ci.id);
+        if(p){
+          totalItems += ci.quantity;
+          totalPrice += ci.quantity * p.price;
+        }
+      });
+      return { totalItems, totalPrice };
+    }
+
+    function renderCart(){
+      // update badge and panel
+      const { totalItems, totalPrice } = cartSummary();
+      cartCountEl.textContent = totalItems;
+      cartItemsCountEl.textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''}`;
+      cartTotalEl.textContent = formatINR(totalPrice);
+
+      // render list
+      cartListEl.innerHTML = '';
+      if(cart.length === 0){
+        cartListEl.innerHTML = `<div style="text-align:center;padding:28px;color:#6b7280">Your cart is empty. Add items from the shop.</div>`;
+        return;
+      }
+
+      cart.forEach(ci => {
+        const p = PRODUCTS.find(x => x.id === ci.id);
+        if(!p) return;
+        const item = document.createElement('div');
+        item.className = 'cart-item';
+        item.innerHTML = `
+          <img src="${p.img}" alt="${escapeHtml(p.title)}" />
+          <div class="meta">
+            <h4>${escapeHtml(p.title)}</h4>
+            <p class="muted">${formatINR(p.price)} each</p>
+            <div class="qty-controls" aria-label="Quantity controls">
+              <button aria-label="Decrease" data-id="${p.id}" class="decrease">−</button>
+              <div style="font-weight:700">${ci.quantity}</div>
+              <button aria-label="Increase" data-id="${p.id}" class="increase">+</button>
+              <button class="remove-btn" data-id="${p.id}" style="margin-left:8px">Remove</button>
+            </div>
+          </div>
+        `;
+        cartListEl.appendChild(item);
+      });
+
+      // attach handlers
+      cartListEl.querySelectorAll('.increase').forEach(btn=>btn.addEventListener('click', (e)=>{
+        changeQuantity(e.currentTarget.dataset.id, +1);
+      }));
+      cartListEl.querySelectorAll('.decrease').forEach(btn=>btn.addEventListener('click', (e)=>{
+        changeQuantity(e.currentTarget.dataset.id, -1);
+      }));
+      cartListEl.querySelectorAll('.remove-btn').forEach(btn=>btn.addEventListener('click', (e)=>{
+        removeFromCart(e.currentTarget.dataset.id);
+      }));
+    }
+
+    /**********************
+     * Quick view modal (simple) *
+     **********************/
+    function viewQuick(id){
+      const p = PRODUCTS.find(x=>x.id===id);
+      if(!p) return;
+      // small quick action: add to cart and show panel
+      addToCart(id,1);
+      toggleCart(true);
+    }
+
+    /**********************
+     * Checkout handler (demo) *
+     **********************/
+    document.getElementById('checkout-btn').addEventListener('click', ()=>{
+      const { totalItems, totalPrice } = cartSummary();
+      if(totalItems === 0){
+        alert('Your cart is empty. Add items before checkout.');
+        return;
+      }
+      // demo flow
+      alert(`Demo checkout — ${totalItems} item(s), total ${formatINR(totalPrice)}. (No real payment)`);
+      // clear cart after demo checkout:
+      cart = [];
+      saveCart();
+      renderCart();
+      toggleCart(false);
+    });
+
+    /**********************
+     * Contact form demo  *
+     **********************/
+    document.getElementById('contact-form').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      alert('Thanks! This is a demo form — no message will be sent.');
+      e.target.reset();
+    });
+
+    /**********************
+     * Init render         *
+     **********************/
+    renderProducts();
+    renderCart();
+
+    /**********************
+     * Small accessibility / keyboard close
+     **********************/
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Escape') toggleCart(false);
+    });
+
+  </script>
+</body>
+</html>
